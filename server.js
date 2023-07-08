@@ -1,5 +1,5 @@
 const express = require("express");
-const path = require("path");
+
 const socket = require("socket.io");
 const app = express();
 
@@ -20,12 +20,15 @@ io.on("connection", (socket) => {
   io.to(socket.id).emit("updateData", tasks);
 
   socket.on("addTask", (taskData) => {
-    tasks.push({ id: taskData.id, name: taskData.description });
-    socket.broadcast.emit("addTask");
+    tasks.push({ id: taskData.id, name: taskData.name });
+    socket.broadcast.emit("addTask", taskData);
   });
 
   socket.on("removeTask", (taskId) => {
-    tasks = tasks.filter((task) => task.id !== taskId);
-    socket.broadcast.emit("removeTask");
+    [...tasks.filter((task) => task.id !== taskId)];
+    socket.broadcast.emit("removeTask", taskId);
+  });
+  socket.on("disconnect", () => {
+    console.log(`Oh, socket  ${socket.id}  has left`);
   });
 });
